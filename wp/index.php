@@ -9,8 +9,8 @@
     <li><a href="files.php">Files</a></li>
     <li><a href="file.php">File</a></li>
     <li><a href="templates.php">Templates</a></li>
-    <li><a href="text.php">Text</a></li>
-    <li><a href="img.php">Img</a></li>
+    <li><a href="texts.php">Text</a></li>
+    <li><a href="imgs.php">Img</a></li>
     <li><a href="users.php">Users</a></li>
   </ul>
 </nav>

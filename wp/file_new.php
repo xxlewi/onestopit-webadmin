@@ -1,68 +1,82 @@
 <?php
-session_start();
-require_once 'install/db_config.php';
+require_once 'head.php';
 
-// zkontroluj, zda je uživatel přihlášen
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+$error = '';
+$success = false;
 
-// přidat nový soubor do tabulky Files
-if (isset($_POST['create'])) {
-    $file_name = mysqli_real_escape_string($conn, $_POST['file_name']);
-    $file_name = mysqli_real_escape_string($conn, $_POST['file_url']);
-    $file_title = mysqli_real_escape_string($conn, $_POST['file_title']);
-    $file_description = mysqli_real_escape_string($conn, $_POST['file_description']);
-    $file_keywords = mysqli_real_escape_string($conn, $_POST['file_keywords']);
-    $file_status = mysqli_real_escape_string($conn, $_POST['file_status']);
+if (isset($_POST['submit'])) {
+    $file_name = trim($_POST['file_name']);
 
-    $sql = "INSERT INTO Files (file_name, file_url, file_title, file_description, file_keywords, file_status)
-            VALUES ('$file_name','$file_url', '$file_title', '$file_description', '$file_keywords', '$file_status')";
-    mysqli_query($conn, $sql);
+    if (empty($file_name)) {
+        $error = 'Název souboru nesmí být prázdný.';
+    } else {
+        // Odstraňte háčky a čárky
+        $file_name_clean = preg_replace('/[^a-zA-Z0-9]+/', '_', $file_name);
+        $file_path = '../' . $file_name_clean . '.php';
+        $file_title = $file_name_clean;
 
-    header("Location: files.php");
-    exit();
+        $sql_check = "SELECT * FROM Files WHERE file_name = ?";
+        $stmt_check = mysqli_prepare($conn, $sql_check);
+        mysqli_stmt_bind_param($stmt_check, "s", $file_name_clean);
+        mysqli_stmt_execute($stmt_check);
+        $result_check = mysqli_stmt_get_result($stmt_check);
+
+        if (mysqli_num_rows($result_check) > 0) {
+            $error = 'Název souboru již existuje. Zvolte jiný název.';
+        } else {
+            $sql = "INSERT INTO Files (file_name, file_path, file_title) VALUES (?, ?, ?)";
+            $stmt = mysqli_prepare($conn, $sql);
+
+            mysqli_stmt_bind_param($stmt, "sss", $file_name_clean, $file_path, $file_title);
+            if (mysqli_stmt_execute($stmt)) {
+                // Vytvořte soubor
+                $file_content = "<?php\n// Toto je soubor $file_name_clean\n";
+
+                if (file_put_contents($file_path, $file_content) === false) {
+                    $error = 'Chyba při vytváření souboru.';
+                } else {
+                    $success = true;
+                }
+            } else {
+                $error = "Chyba při vytváření souboru: " . mysqli_error($conn);
+            }
+        }
+    }
 }
 ?>
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Nový soubor</title>
+    <title>Vytvořit soubor</title>
 </head>
 <body>
-    <h1>Nový soubor</h1>
+    <h1>Vytvořit soubor</h1>
 
-    <form action="file_new.php" method="POST">
-        <div>
-            <label for="file_name">Název souboru:</label>
-            <input type="text" id="file_name" name="file_name" required>
-        </div>        
-        <div>
-            <label for="file_url">Url souboru:</label>
-            <input type="text" id="file_url" name="file_url" required>
-        </div>
-        <div>
-            <label for="file_title">Titulek souboru:</label>
-            <input type="text" id="file_title" name="file_title" required>
-        </div>
-        <div>
-            <label for="file_description">Popis souboru:</label>
-            <textarea id="file_description" name="file_description" required></textarea>
-        </div>
-        <div>
-            <label for="file_keywords">Klíčová slova souboru:</label>
-            <input type="text" id="file_keywords" name="file_keywords" required>
-        </div>
-        <div>
-            <label for="file_status">Status souboru:</label>
-            <select id="file_status" name="file_status" required>
-                <option value="aktivní">Aktivní</option>
-                <option value="neaktivní">Neaktivní</option>
-            </select>
-        </div>
-        <button type="submit" name="create">Přidat soubor</button>
+    <?php if ($error): ?>
+        <p style="color: red;"><?php echo $error; ?></p>
+    <?php endif; ?>
+
+    <?php if (!$success): ?>
+        <form action="" method="post">
+            <label for="file_name">Název souboru:</label><br>
+            <input type="text" id="file_name" name="file_name" required><br>
+            <button type="submit" name="submit">Vytvořit soubor</button>
+        </form>
+        <?php else: ?>
+        <p>Soubor byl úspěšně vytvořen.</p>
+        <p>Název souboru: <?php echo $file_name_clean; ?></p>
+        <p>Cesta k souboru: <?php echo $file_path; ?></p>
+        <?php if ($success): ?>
+    <form action="file_edit.php" method="get">
+        <input type="hidden" name="file_id" value="<?php echo mysqli_insert_id($conn); ?>">
+        <button type="submit">Upravit soubor</button>
     </form>
+<?php endif; ?>
+
+    <?php endif; ?>
 
 </body>
 </html>

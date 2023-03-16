@@ -46,7 +46,7 @@ $result = mysqli_query($conn, $sql);
                     </td>
 
                     <td>
-                        <form action="file_edit.php" method="POST">
+                        <form action="file_edit.php" method="get">
                             <input type="hidden" name="file_id" value="<?php echo $row['file_id']; ?>">
                             <button type="submit" name="edit">Edit</button>
                         </form>

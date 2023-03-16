@@ -6,11 +6,11 @@ require_once 'db_config.php';
 $sql = "CREATE TABLE Files (
     file_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     file_name VARCHAR(30) NOT NULL,
-    file_url VARCHAR(100) NOT NULL,
+    file_path VARCHAR(100) NOT NULL,
     file_title VARCHAR(100) NOT NULL,
     file_description VARCHAR(255),
     file_keywords VARCHAR(255),
-    file_status ENUM('aktivní', 'neaktivní') DEFAULT 'aktivní'
+    file_status ENUM('active', 'inactive') DEFAULT 'active'
 )";
 
 if (mysqli_query($conn, $sql)) {
@@ -25,7 +25,7 @@ $sql = "CREATE TABLE Templates (
     template_name VARCHAR(30) NOT NULL,
     template_file VARCHAR(30) NOT NULL,
     template_css VARCHAR(30),
-    template_status ENUM('aktivní', 'neaktivní') DEFAULT 'aktivní',
+    template_status ENUM('active', 'inactive') DEFAULT 'active',
     template_txt_1 VARCHAR(255),
     template_txt_2 VARCHAR(255),
     template_txt_3 VARCHAR(255),
@@ -45,11 +45,11 @@ if (mysqli_query($conn, $sql)) {
 }
 
 // vytvoř tabulku "Text"
-$sql = "CREATE TABLE Text (
+$sql = "CREATE TABLE Texts (
     text_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     text_title VARCHAR(100) NOT NULL,
     text_content LONGTEXT,
-    text_type ENUM('článek', 'popisek', 'jine') DEFAULT 'článek',
+    text_type ENUM('article', 'caption', 'other') DEFAULT 'article'
     text_status VARCHAR(30)
 )";
 
@@ -60,7 +60,7 @@ if (mysqli_query($conn, $sql)) {
 }
 
 // vytvoř tabulku "Img"
-$sql = "CREATE TABLE Img (
+$sql = "CREATE TABLE Imgs (
     img_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     img_title VARCHAR(100) NOT NULL,
     img_description VARCHAR(255),
@@ -82,7 +82,7 @@ $sql = "CREATE TABLE Users (
     user_name VARCHAR(30) NOT NULL,
     user_email VARCHAR(50) NOT NULL,
     user_password VARCHAR(255) NOT NULL,
-    user_role ENUM('admin', 'redaktor', 'superadmin') DEFAULT 'redaktor'
+    user_role ENUM('admin', 'redactor', 'superadmin') DEFAULT 'redactor'
     )";
     
     if (mysqli_query($conn, $sql)) {
