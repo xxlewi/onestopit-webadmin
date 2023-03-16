@@ -1,4 +1,5 @@
 <?php
+
 require_once 'head.php';
 
 $template_id = $_POST['template_id'] ?? 0;
@@ -27,14 +28,26 @@ if ($template_id == 0) {
 }
 
 if (!empty($template_file) && !empty($template_css)) {
-    $template_file_path = 'templates/' . $template_file;
-    $template_css_path = 'css/' . $template_css;
+    $template_file_path = '../templates/' . $template_file;
+    $template_css_path = '../css/' . $template_css;
 
     if (file_exists($template_file_path) && file_exists($template_css_path)) {
         $template_content = file_get_contents($template_file_path);
         $css_content = file_get_contents($template_css_path);
     } else {
         $error = 'Soubory šablony a/nebo CSS nebyly nalezeny.';
+    }
+}
+
+// Uložení změn
+if (isset($_POST['submit']) && !empty($template_file) && !empty($template_css)) {
+    $template_content = $_POST['template_content'];
+    $css_content = $_POST['css_content'];
+
+    if (file_put_contents($template_file_path, $template_content) === false || file_put_contents($template_css_path, $css_content) === false) {
+        $error = 'Chyba při ukládání změn.';
+    } else {
+        $success = 'Změny byly úspěšně uloženy.';
     }
 }
 ?>
@@ -48,17 +61,21 @@ if (!empty($template_file) && !empty($template_css)) {
     <h1>Upravit šablonu - <?php echo $template_name; ?></h1>
 
     <?php if (!empty($error)): ?>
-        <p><?php echo $error; ?></p>
-    <?php else: ?>
-        <form action="template_save.php" method="POST">
-            <input type="hidden" name="template_id" value="<?php echo $template_id; ?>">
-            <label for="template_content">Obsah souboru šablony:</label><br>
-            <textarea name="template_content" id="template_content" rows="10" cols="80"><?php echo htmlspecialchars($template_content); ?></textarea><br>
-            <label for="css_content">Obsah souboru CSS:</label><br>
-            <textarea name="css_content" id="css_content" rows="10" cols="80"><?php echo htmlspecialchars($css_content); ?></textarea><br>
-            <button type="submit" name="submit">Uložit změny</button>
-        </form>
+        <p style="color: red;"><?php echo $error; ?></p>
     <?php endif; ?>
+
+    <?php if (!empty($success)): ?>
+        <p style="color: green;"><?php echo $success; ?></p>
+    <?php endif; ?>
+
+    <form action="" method="POST">
+        <input type="hidden" name="template_id" value="<?php echo $template_id; ?>">
+        <label for="template_content">Obsah souboru šablony:</label><br>
+        <textarea name="template_content" id="template_content" rows="10" cols="80"><?php echo htmlspecialchars($template_content); ?></textarea><br>
+        <label for="css_content">Obsah souboru CSS:</label><br>
+        <textarea name="css_content" id="css_content" rows="10" cols="80"><?php echo htmlspecialchars($css_content); ?></textarea><br>
+        <button type="submit" name="submit">Uložit změny</button>
+    </form>
 
 </body>
 </html>
