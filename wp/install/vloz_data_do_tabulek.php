@@ -35,15 +35,29 @@ if (mysqli_query($conn, $sql)) {
 
 // Vlož data do Files
 
-$sql = "INSERT INTO Files (file_name, file_url, file_title, file_description, file_keywords, file_status)
-        VALUES ('index.php', 'https://localhost/index.php', 'index', 'hlavní strana', 'None', 'aktivní')";
+// $sql = "INSERT INTO Files (file_name, file_url, file_title, file_description, file_keywords, file_status)
+//         VALUES ('index.php', 'https://localhost/index.php', 'index', 'hlavní strana', 'None', 'aktivní')";
 
-if (mysqli_query($conn, $sql)) {
-    echo "Data úspěšně vložena do tabulky Files<br>";
-} else {
-    echo "Chyba při vkládání dat do tabulky Files: " . mysqli_error($conn) . "<br>";
-}
+// if (mysqli_query($conn, $sql)) {
+//     echo "Data úspěšně vložena do tabulky Files<br>";
+// } else {
+//     echo "Chyba při vkládání dat do tabulky Files: " . mysqli_error($conn) . "<br>";
+// }
 
-// ukonči spojení s databází
-mysqli_close($conn);
+// // ukonči spojení s databází
+// mysqli_close($conn);
 ?>
+
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Instalace dokončena</title>
+</head>
+<body>
+    <h1>Instalace byla dokončena</h1>
+    <p>Data do tabulek byla přidána.</p>
+    <a href="../index.php"><button type="button">Přihlásit se</button></a>
+</body>
+</html>

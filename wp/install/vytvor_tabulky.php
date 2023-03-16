@@ -49,7 +49,7 @@ $sql = "CREATE TABLE Texts (
     text_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     text_title VARCHAR(100) NOT NULL,
     text_content LONGTEXT,
-    text_type ENUM('article', 'caption', 'other') DEFAULT 'article'
+    text_type ENUM('article', 'caption', 'other') DEFAULT 'article',
     text_status VARCHAR(30)
 )";
 
@@ -94,3 +94,15 @@ $sql = "CREATE TABLE Users (
     // ukonči spojení s databází
     mysqli_close($conn);
     ?>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Instalace dokončena</title>
+</head>
+<body>
+    <h1>Instalace byla dokončena</h1>
+    <p>Tabulky byly vytvořeny.</p>
+    <a href="./vloz_data_do_tabulek.php"><button type="button">Pokračovat</button></a>
+</body>
+</html>
