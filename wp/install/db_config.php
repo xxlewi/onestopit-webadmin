@@ -1,4 +1,9 @@
+<!-- db_config -->
+
 <?php
+
+// echo "db_config";
+
 $servername = 'localhost';
 $username = 'maly';
 $password = 'BastardIK++';

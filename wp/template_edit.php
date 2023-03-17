@@ -1,12 +1,9 @@
 <?php
-
 require_once 'head.php';
 
-$template_id = $_POST['template_id'] ?? 0;
+$template_id = $_GET['template_id'] ?? 0;
 $error = '';
-$template_name = '';
-$template_file = '';
-$template_css = '';
+$success = '';
 
 if ($template_id == 0) {
     $error = 'Neplatné ID šablony.';
@@ -18,47 +15,76 @@ if ($template_id == 0) {
     $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        $template_name = $row['template_name'];
-        $template_file = $row['template_file'];
-        $template_css = $row['template_css'];
+        $template = mysqli_fetch_assoc($result);
     } else {
         $error = 'Šablona nebyla nalezena.';
     }
 }
 
-if (!empty($template_file) && !empty($template_css)) {
-    $template_file_path = '../templates/' . $template_file;
-    $template_css_path = '../css/' . $template_css;
+if (isset($_POST['submit'])) {
+    $template_name = $_POST['template_name'];
+    $template_file = $_POST['template_file'];
+    $template_css = $_POST['template_css'];
+    $template_status = $_POST['template_status'];
+    $template_txt_1 = $_POST['template_txt_1'];
+    $template_txt_2 = $_POST['template_txt_2'];
+    $template_txt_3 = $_POST['template_txt_3'];
+    $template_txt_4 = $_POST['template_txt_4'];
+    $template_txt_5 = $_POST['template_txt_5'];
+    $template_img_1 = $_POST['template_img_1'];
+    $template_img_2 = $_POST['template_img_2'];
+    $template_img_3 = $_POST['template_img_3'];
+    $template_img_4 = $_POST['template_img_4'];
+    $template_img_5 = $_POST['template_img_5'];
 
-    if (file_exists($template_file_path) && file_exists($template_css_path)) {
-        $template_content = file_get_contents($template_file_path);
-        $css_content = file_get_contents($template_css_path);
-    } else {
-        $error = 'Soubory šablony a/nebo CSS nebyly nalezeny.';
-    }
-}
+    $sql_update = "UPDATE Templates SET template_name = ?, template_file = ?, template_css = ?, template_status = ?, template_txt_1 = ?, template_txt_2 = ?, template_txt_3 = ?, template_txt_4 = ?, template_txt_5 = ?, template_img_1 = ?, template_img_2 = ?, template_img_3 = ?, template_img_4 = ?, template_img_5 = ? WHERE template_id = ?";
+    $stmt_update = mysqli_prepare($conn, $sql_update);
+    mysqli_stmt_bind_param($stmt_update, "ssssssssssssssi", $template_name, $template_file, $template_css, $template_status, $template_txt_1, $template_txt_2, $template_txt_3, $template_txt_4, $template_txt_5, $template_img_1, $template_img_2, $template_img_3, $template_img_4, $template_img_5, $template_id);
 
-// Uložení změn
-if (isset($_POST['submit']) && !empty($template_file) && !empty($template_css)) {
-    $template_content = $_POST['template_content'];
-    $css_content = $_POST['css_content'];
-
-    if (file_put_contents($template_file_path, $template_content) === false || file_put_contents($template_css_path, $css_content) === false) {
-        $error = 'Chyba při ukládání změn.';
-    } else {
+    if (mysqli_stmt_execute($stmt_update)) {
         $success = 'Změny byly úspěšně uloženy.';
+
+        // Znovu načíst data šablony z databáze po úspěšném uložení změn
+        $sql = "SELECT * FROM Templates WHERE template_id = ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $template_id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if (mysqli_num_rows($result) > 0) {
+            $template = mysqli_fetch_assoc($result);
+        } else {
+            $error = 'Šablona nebyla nalezena.';
+        }
+    } else {
+        $error = 'Chyba při ukládání změn: ' . mysqli_error($conn);
     }
 }
+
+
+// Načtení textů z databáze
+$sql_texts = "SELECT * FROM Texts";
+$result_texts = mysqli_query($conn, $sql_texts);
+$texts = mysqli_fetch_all($result_texts, MYSQLI_ASSOC);
+
+// Načtení obrázků z databáze
+$sql_imgs = "SELECT * FROM Imgs";
+$result_imgs = mysqli_query($conn, $sql_imgs);
+$imgs = mysqli_fetch_all($result_imgs, MYSQLI_ASSOC);
+
+
+
+
+
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Upravit šablonu - <?php echo $template_name; ?></title>
+    <title>Upravit šablonu - <?php echo htmlspecialchars($template['template_name']); ?></title>
 </head>
 <body>
-    <h1>Upravit šablonu - <?php echo $template_name; ?></h1>
+    <h1>Upravit šablonu - <?php echo htmlspecialchars($template['template_name']); ?></h1>
 
     <?php if (!empty($error)): ?>
         <p style="color: red;"><?php echo $error; ?></p>
@@ -68,12 +94,76 @@ if (isset($_POST['submit']) && !empty($template_file) && !empty($template_css)) 
         <p style="color: green;"><?php echo $success; ?></p>
     <?php endif; ?>
 
+
+
+    <p><a href="template_edit_files.php?template_id=<?php echo $template_id; ?>">Upravit soubory šablony</a></p>
+
+
     <form action="" method="POST">
         <input type="hidden" name="template_id" value="<?php echo $template_id; ?>">
-        <label for="template_content">Obsah souboru šablony:</label><br>
-        <textarea name="template_content" id="template_content" rows="10" cols="80"><?php echo htmlspecialchars($template_content); ?></textarea><br>
-        <label for="css_content">Obsah souboru CSS:</label><br>
-        <textarea name="css_content" id="css_content" rows="10" cols="80"><?php echo htmlspecialchars($css_content); ?></textarea><br>
+
+        <?php
+        $fields = [
+            'template_name' => 'Název šablony',
+            'template_file' => 'Soubor šablony',
+            'template_css' => 'Soubor CSS',
+            'template_status' => 'Stav šablony',
+            'template_txt_1' => 'Text 1',
+            'template_txt_2' => 'Text 2',
+            'template_txt_3' => 'Text 3',
+            'template_txt_4' => 'Text 4',
+            'template_txt_5' => 'Text 5',
+            'template_img_1' => 'Obrázek 1',
+            'template_img_2' => 'Obrázek 2',
+            'template_img_3' => 'Obrázek 3',
+            'template_img_4' => 'Obrázek 4',
+            'template_img_5' => 'Obrázek 5',
+
+            
+
+
+        ];
+
+        foreach ($fields as $field => $label) {
+            if ($field === 'template_status') {
+                ?>
+                <label for="<?php echo $field; ?>"><?php echo $label; ?>:</label>
+                <select name="<?php echo $field; ?>" id="<?php echo $field; ?>">
+                    <option value="active" <?php echo $template[$field] === 'active' ? 'selected' : ''; ?>>Aktivní</option>
+                    <option value="inactive" <?php echo $template[$field] === 'inactive' ? 'selected' : ''; ?>>Neaktivní</option>
+                </select><br>
+                <?php
+            } elseif (strpos($field, 'template_txt_') === 0) {
+                // Pro textová pole
+                ?>
+                <label for="<?php echo $field; ?>"><?php echo $label; ?>:</label>
+                <select name="<?php echo $field; ?>" id="<?php echo $field; ?>">
+                    <option value="">-- Vyberte text --</option>
+                    <?php foreach ($texts as $text): ?>
+                    <option value="<?php echo $text['text_id']; ?>" <?php echo $template[$field] == $text['text_id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($text['text_title']); ?></option>
+                    <?php endforeach; ?>
+                </select><br>
+                <?php
+            } elseif (strpos($field, 'template_img_') === 0) {
+                // Pro obrázky
+                ?>
+                <label for="<?php echo $field; ?>"><?php echo $label; ?>:</label>
+                <select name="<?php echo $field; ?>" id="<?php echo $field; ?>">
+                    <option value="">-- Vyberte obrázek --</option>
+                    <?php foreach ($imgs as $img): ?>
+                    <option value="<?php echo $img['img_id']; ?>" <?php echo $template[$field] == $img['img_id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($img['img_title']); ?></option>
+                    <?php endforeach; ?>
+                </select><br>
+                <?php
+            } else {
+                ?>
+                <label for="<?php echo $field; ?>"><?php echo $label; ?>:</label>
+                <input type="text" name="<?php echo $field; ?>" id="<?php echo $field; ?>" value="<?php echo htmlspecialchars($template[$field]); ?>"><br>
+                <?php
+            }
+        }
+        ?>
+
         <button type="submit" name="submit">Uložit změny</button>
     </form>
 

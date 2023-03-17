@@ -24,33 +24,28 @@ if (isset($_POST['submit'])) {
         if (mysqli_num_rows($result_check) > 0) {
             $error = 'Název šablony již existuje. Zvolte jiný název.';
         } else {
-            $sql = "INSERT INTO Templates (template_name, template_file, template_css) VALUES (?, ?, ?)";
-            $stmt = mysqli_prepare($conn, $sql);
+            // Vytvořte složky 'templates/' a 'css/' pokud neexistují
+            if (!file_exists('../templates')) {
+                mkdir('../templates', 0755);
+            }
+            if (!file_exists('../css')) {
+                mkdir('../css', 0755);
+            }
 
-            mysqli_stmt_bind_param($stmt, "sss", $template_name_clean, $template_file, $template_css);
-            if (mysqli_stmt_execute($stmt)) {
-                // Vytvořte složky 'templates/' a 'css/' pokud neexistují
-                if (!file_exists('../templates')) {
-                    mkdir('../templates', 0755);
-                }
-                if (!file_exists('../css')) {
-                    mkdir('../css', 0755);
-                }
+            // Vytvoření souboru šablony a CSS souboru
+            $template_content = "<!DOCTYPE html>\n<html>\n<head>\n    <link rel=\"stylesheet\" href=\"../css/{$template_css}\" />\n</head>\n<body>\n\n    <!-- Toto je šablona {$template_name_clean} -->\n\n</body>\n</html>\n";
+            $css_content = "/* Toto je stylový soubor pro šablonu {$template_name_clean} */\n";
 
-                // Vytvoření souboru šablony a CSS souboru
-                $template_content = "<!DOCTYPE html>\n<html>\n<head>\n    <link rel=\"stylesheet\" href=\"../css/{$template_css}\" />\n</head>\n<body>\n\n    <!-- Toto je šablona {$template_name_clean} -->\n\n</body>\n</html>\n";
-                $css_content = "/* Toto je stylový soubor pro šablonu {$template_name_clean} */\n";
+            $template_file_path = '../templates/' . $template_file;
+            $template_css_path = '../css/' . $template_css;
 
-                $template_file_path = '../templates/' . $template_file;
-                $template_css_path = '../css/' . $template_css;
-
-                if (file_put_contents($template_file_path, $template_content) !== false && file_put_contents($template_css_path, $css_content) !== false) {
-                    // Vložení nové šablony do databáze
-                    $sql = "INSERT INTO Templates (template_name, template_file, template_css) VALUES (?, ?, ?)";
-                    $stmt = mysqli_prepare($conn, $sql);
-                    mysqli_stmt_bind_param($stmt, "sss", $template_name, $template_file, $template_css);
-                    mysqli_stmt_execute($stmt);
+            if (file_put_contents($template_file_path, $template_content) !== false && file_put_contents($template_css_path, $css_content) !== false) {
+                // Vložení nové šablony do databáze
+                $sql = "INSERT INTO Templates (template_name, template_file, template_css) VALUES (?, ?, ?)";
+                $stmt = mysqli_prepare($conn, $sql);
+                mysqli_stmt_bind_param($stmt, "sss", $template_name_clean, $template_file, $template_css);
                 
+                if (mysqli_stmt_execute($stmt)) {
                     if (mysqli_stmt_affected_rows($stmt) > 0) {
                         $success = true;
                         $template_id = mysqli_insert_id($conn);
@@ -58,15 +53,16 @@ if (isset($_POST['submit'])) {
                         $error = "Nepodařilo se vytvořit šablonu.";
                     }
                 } else {
-                    $error = "Nepodařilo se vytvořit soubory šablony a/nebo CSS.";
+                    $error = "Chyba při vytváření šablony: " . mysqli_error($conn);
                 }
             } else {
-                $error = "Chyba při vytváření šablony: " . mysqli_error($conn);
+                $error = "Nepodařilo se vytvořit soubory šablony a/nebo CSS.";
             }
         }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>

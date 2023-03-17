@@ -43,7 +43,7 @@ $result = mysqli_query($conn, $sql);
                         </form>
                     </td>
                     <td>
-                        <form action="text_edit.php" method="POST">
+                        <form action="text_edit.php" method="GET">
                             <input type="hidden" name="text_id" value="<?php echo $row['text_id']; ?>">
                             <button type="submit" name="edit">Edit</button>
                         </form>

@@ -1,1 +1,0 @@
-<!-- Toto je šablona kuku -->

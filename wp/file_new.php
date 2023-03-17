@@ -11,8 +11,8 @@ if (isset($_POST['submit'])) {
         $error = 'Název souboru nesmí být prázdný.';
     } else {
         // Odstraňte háčky a čárky
-        $file_name_clean = preg_replace('/[^a-zA-Z0-9]+/', '_', $file_name);
-        $file_path = '../' . $file_name_clean . '.php';
+        $file_name_clean = preg_replace('/[^a-zA-Z0-9.]+/', '_', $file_name);
+        $file_path = '../' . $file_name_clean;
         $file_title = $file_name_clean;
 
         $sql_check = "SELECT * FROM Files WHERE file_name = ?";

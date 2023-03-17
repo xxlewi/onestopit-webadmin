@@ -2,7 +2,7 @@
     <head>
 
     <title>WebAdmin Onestopit</title>
-    <link rel="stylesheet" type="text/css" href="wp-style.css">
+    <link rel="stylesheet" type="text/css" href="./wp-style.css">
 
 <nav>
   <ul>
