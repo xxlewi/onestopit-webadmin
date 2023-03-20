@@ -44,14 +44,15 @@ if (mysqli_query($conn, $sql)) {
     echo "Chyba při vytváření tabulky Templates: " . mysqli_error($conn) . "<br>";
 }
 
-// vytvoř tabulku "Text"
+// vytvoř tabulku "Texts"
 $sql = "CREATE TABLE Texts (
     text_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     text_title VARCHAR(100) NOT NULL,
     text_content LONGTEXT,
     text_type ENUM('article', 'caption', 'other') DEFAULT 'article',
-    text_status VARCHAR(30)
+    text_status ENUM('draft', 'published', 'archived') DEFAULT 'draft'
 )";
+
 
 if (mysqli_query($conn, $sql)) {
     echo "Tabulka Text byla úspěšně vytvořena<br>";
@@ -64,7 +65,7 @@ $sql = "CREATE TABLE Imgs (
     img_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     img_title VARCHAR(100) NOT NULL,
     img_description VARCHAR(255),
-    img_name VARCHAR(30) NOT NULL,
+    img_name VARCHAR(255) NOT NULL,
     img_path VARCHAR(255) NOT NULL,
     img_alt VARCHAR(255),
     img_seo VARCHAR(255)

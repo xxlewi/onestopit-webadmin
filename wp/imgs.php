@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once 'head.php';
 
@@ -20,7 +20,7 @@ $result = mysqli_query($conn, $sql);
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Náhled</th>
                 <th>Titulek</th>
                 <th>Popis</th>
                 <th>Název</th>
@@ -33,7 +33,7 @@ $result = mysqli_query($conn, $sql);
         <tbody>
             <?php while ($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
-                    <td><?php echo $row['img_id']; ?></td>
+                    <td><img src="<?php echo '../imgs/thumbnails/' . $row['img_name']; ?>" alt="<?php echo $row['img_alt']; ?>" style="width: 150px;"></td>
                     <td><?php echo $row['img_title']; ?></td>
                     <td><?php echo $row['img_description']; ?></td>
                     <td><?php echo $row['img_name']; ?></td>

@@ -37,20 +37,6 @@ if (isset($_POST['submit'])) {
     $template_img_4 = $_POST['template_img_4'];
     $template_img_5 = $_POST['template_img_5'];
 
-    // Přejmenování souborů šablony a CSS souboru
-    $old_template_file = $template['template_file'];
-    $old_template_css = $template['template_css'];
-    $new_template_file = preg_replace("/[^a-z0-9_\-]/", "", strtolower($template_name)) . ".php";
-    $new_template_css = preg_replace("/[^a-z0-9_\-]/", "", strtolower($template_name)) . ".css";
-
-    // Kontrola, zda se název šablony skutečně změnil
-    if ($old_template_file !== $new_template_file || $old_template_css !== $new_template_css) {
-        rename("../templates/" . $old_template_file, "../templates/" . $new_template_file);
-        rename("../css/" . $old_template_css, "../css/" . $new_template_css);
-        $template_file = $new_template_file;
-        $template_css = $new_template_css;
-    }
-
     $sql_update = "UPDATE Templates SET template_name = ?, template_file = ?, template_css = ?, template_status = ?, template_txt_1 = ?, template_txt_2 = ?, template_txt_3 = ?, template_txt_4 = ?, template_txt_5 = ?, template_img_1 = ?, template_img_2 = ?, template_img_3 = ?, template_img_4 = ?, template_img_5 = ? WHERE template_id = ?";
     $stmt_update = mysqli_prepare($conn, $sql_update);
     mysqli_stmt_bind_param($stmt_update, "ssssssssssssssi", $template_name, $template_file, $template_css, $template_status, $template_txt_1, $template_txt_2, $template_txt_3, $template_txt_4, $template_txt_5, $template_img_1, $template_img_2, $template_img_3, $template_img_4, $template_img_5, $template_id);
@@ -74,19 +60,6 @@ if (isset($_POST['submit'])) {
         $error = 'Chyba při ukládání změn: ' . mysqli_error($conn);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Načtení textů z databáze
@@ -193,10 +166,6 @@ $imgs = mysqli_fetch_all($result_imgs, MYSQLI_ASSOC);
 
         <button type="submit" name="submit">Uložit změny</button>
     </form>
-    <div class="template-preview">
-    <h3>Náhled šablony</h3>
-    <iframe src="preview.php?template_id=<?php echo $template_id; ?>" width="100%" height="500" frameborder="0"></iframe>
-</div>
 
 </body>
 </html>

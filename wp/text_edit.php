@@ -59,7 +59,11 @@ if (isset($_POST['update'])) {
         </select>
 
         <label for="text_status">Status:</label>
-        <input type="text" name="text_status" id="text_status" value="<?php echo $row['text_status']; ?>" required>
+        <select name="text_status" id="text_status" required>
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+            <option value="archived">Archived</option>
+        </select>
 
         <button type="submit" name="update">Aktualizovat</button>
     </form>

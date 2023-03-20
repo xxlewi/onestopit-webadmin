@@ -87,7 +87,7 @@ if (isset($_POST['submit'])) {
         <p>Název šablony: <?php echo $template_name_clean; ?></p>
         <p>Soubor šablony: <?php echo $template_file; ?></p>
         <p>Stylový soubor: <?php echo $template_css; ?></p>
-        <form action="template_edit.php" method="POST">
+        <form action="template_edit.php" method="get">
     <input type="hidden" name="template_id" value="<?php echo $template_id; ?>">
     <button type="submit" name="submit_from_new">Pokračovat na krok 2</button>
 </form>
